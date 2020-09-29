@@ -1,0 +1,127 @@
+import pandas as pd
+import csv
+import numpy as np
+from keras.utils import to_categorical
+from keras.models import Sequential
+from keras.layers import Dense, Flatten, LeakyReLU, Dropout, BatchNormalization
+from keras.optimizers import SGD
+from keras import regularizers
+from sklearn import preprocessing
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
+X = []
+Y = []
+identifierDict = {}
+idCounter = 1
+
+#Iterate through all csv files and read each file
+for i in range(1, 121):
+    with open("keystrokeData/Data_" + str(i) + ".csv") as csvFile:
+        csvReader = csv.reader(csvFile, delimiter = ',')
+        counter = 0
+        prediction = ""
+        
+        #Iterates through each row of the CSV file
+        for row in csvReader:
+            #Sets the prediction label
+            if counter == 0:
+                prediction = row
+                prediction = "".join(prediction) 
+
+                if prediction not in identifierDict:   
+                    identifierDict[prediction] = idCounter #Stores key value pair in the dictionary
+                    idCounter += 1
+                
+                counter += 1
+
+            #This creates the list of keystroke dynamics timings and predicted labels
+            else:
+                timingList = [row[0], row[1], row[2]]
+                X.append(timingList)
+                Y.append(prediction)
+
+for identifier in Y:
+    Y[Y.index(identifier)] = identifierDict.get(identifier)
+	
+#Converts the list to an array
+X = np.array(X)
+
+#Converts the list to an array
+Y = np.array(Y)
+
+#This is the one-hot encoding process
+Y = to_categorical(Y)
+
+#Normalises the input features to lie between 0 and 1 (inclusive)
+
+min_max_scaler = preprocessing.MinMaxScaler() 
+X_scale = min_max_scaler.fit_transform(X)
+
+
+#Splits the dataset (validation and test size = 20% of overall dataset)
+X_train, X_val_and_test, Y_train, Y_val_and_test = train_test_split(X_scale, Y, test_size=0.8)
+
+#Splits the validation and test set into two separate sets
+#70% for testing and 30% for validation
+X_val, X_test, Y_val, Y_test = train_test_split(X_val_and_test, Y_val_and_test, test_size=0.7)
+
+#Neural Network Architecture
+model = Sequential([
+    Dense(21,activation='relu', input_shape=(3,)),
+    BatchNormalization(),
+    LeakyReLU(alpha=0.01),
+    
+    Dense(100, activation='relu'),
+    Dropout(0.5, input_shape=(3,)),
+    BatchNormalization(),
+    LeakyReLU(alpha=0.01),
+    
+    Dense(400, activation= 'relu'),
+    Dropout(0.7, input_shape=(3,)),
+    BatchNormalization(),
+    LeakyReLU(alpha=0.01),
+    
+    Dense(100, activation= 'relu'),
+    Dropout(0.5,input_shape=(3,)),
+    BatchNormalization(),
+    
+    Dense(21, activation='softmax'),])
+	
+model.compile(optimizer = 'adam',
+              loss = 'binary_crossentropy',
+              metrics = ['accuracy'])
+			  
+			  
+#This gives a summary of the neural network architecture
+model.summary()
+
+#This trains the neural network
+hist = model.fit(X_train, Y_train,
+          batch_size = 45, epochs = 500,
+         validation_data = (X_val, Y_val))
+
+
+#Gives the accuracy of the network when passed with the testing set
+model.evaluate(X_test, Y_test)[1]
+
+#Plots the loss values of the training and validation sets
+plt.plot(hist.history['loss'])
+plt.plot(hist.history['val_loss'])
+plt.title('Model loss')
+plt.ylabel('Loss')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Val'], loc='upper right')
+plt.show()
+
+
+#Plots the accuracy values of the training and validation sets
+plt.plot(hist.history['accuracy'])
+plt.plot(hist.history['val_accuracy'])
+plt.title('Model accuracy')
+plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['Train', 'Val'], loc='lower right')
+plt.show()
+
+

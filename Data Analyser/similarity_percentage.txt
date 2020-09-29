@@ -1,0 +1,22 @@
+Participant 1 Accuracy : 59.184%
+Participant 2 Accuracy : 22.642%
+Participant 3 Accuracy : 77.551%
+Participant 4 Accuracy : 91.837%
+Participant 5 Accuracy : 100.0%
+Participant 6 Accuracy : 74.0%
+Participant 7 Accuracy : 100.0%
+Participant 8 Accuracy : 100.0%
+Participant 9 Accuracy : 85.106%
+Participant 10 Accuracy : 47.17%
+Participant 11 Accuracy : 26.531%
+Participant 12 Accuracy : 52.542%
+Participant 13 Accuracy : 57.447%
+Participant 14 Accuracy : 0.0%
+Participant 15 Accuracy : 100.0%
+Participant 16 Accuracy : 28.571%
+Participant 17 Accuracy : 42.857%
+Participant 18 Accuracy : 31.373%
+Participant 19 Accuracy : 27.451%
+Participant 20 Accuracy : 77.778%
+
+Mean Value of Percentages : 60.102%
